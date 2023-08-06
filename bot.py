@@ -76,10 +76,16 @@ async def play_command(ctx: lightbulb.context.Context):
     if not ctx.bot.cache.get_voice_state(ctx.guild_id, ctx.author.id):
         await ctx.respond("you are not in a voice channel")
         return
-    voice_state =  ctx.bot.cache.get_voice_state(ctx.guild_id, ctx.author.id)
-    channel_id = voice_state.channel_id
-    await bot.update_voice_state(ctx.guild_id, channel_id, self_deaf=True)
-    await lavalink.wait_for_connection(ctx.guild_id)
+
+    voice_state = ctx.bot.cache.get_voice_state(ctx.guild_id, ctx.author.id)
+    user_channel = ctx.get_channel()
+
+    # Check if both are in the same channel
+    if user_channel and voice_state and voice_state.channel_id != user_channel:
+        voice_state =  ctx.bot.cache.get_voice_state(ctx.guild_id, ctx.author.id)
+        channel_id = voice_state.channel_id
+        await bot.update_voice_state(ctx.guild_id, channel_id, self_deaf=True)
+        await lavalink.wait_for_connection(ctx.guild_id)
     if not result:
         await ctx.respond("not found result for your query")
         return
