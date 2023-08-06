@@ -44,13 +44,13 @@ Welcome to the Music Bot project! This bot is designed to play your favorite tun
 
 ## 🎛️ Commands
 
-- `!play <url>`: Play a song from the given URL.
-- `!pause`: Pause the current song.
-- `!stop`: Stop the music and clear the queue.
-- `!skip`: Skip to the next song in the queue.
-- `!volume <level>`: Adjust the volume (0-100).
-- `!queue`: Display the current queue.
-- `!nowplaying`: Show the currently playing song.
+- `/play <url>`: Play a song from the given URL.
+- `/pause`: Pause the current song.
+- `/stop`: Stop the music and clear the queue.
+- `/skip`: Skip to the next song in the queue.
+- `/volume <level>`: Adjust the volume (0-100).
+- `/queue`: Display the current queue.
+- `/nowplaying`: Show the currently playing song.
 
 ## 📝 Contributing
 
