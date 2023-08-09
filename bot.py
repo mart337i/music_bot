@@ -7,9 +7,6 @@ import asyncio
 
 SLASH_COMMAND = True  # if you want to use slash command, set True
 PREFIX = "="  # prefix for commands
-TOKEN = "OTA1MDUxMzg1NzA2NDY3MzI4.G7Hcm7.lbLXDG9WxdQ2p3l40fKosEb9Nl0VdnOvgG-iqk"  # token for bot
-DEFAULT_ENABLED_GUILDS = []  # list of guilds that the bot will create slash commands for (if you want to use slash command)
-# you can keep empty list if you don't want to use guild slash command it create globally for all guilds
 
 
 # create a hikari client to get a events
@@ -24,7 +21,7 @@ bot = lightbulb.BotApp(
             "lightbulb": {"level": "DEBUG"},
         },
     },
-    )
+)
 
 # create a lavaplayer client
 lavalink = lavaplayer.LavalinkClient(
@@ -99,6 +96,67 @@ async def play_command(ctx: lightbulb.context.Context):
 
     await lavalink.play(ctx.guild_id, result[0], ctx.author.id)  # play the first result
     await ctx.respond(f"[{result[0].title}]({result[0].uri})")  # send the embed
+
+@bot.command()
+@lightbulb.command(name="help", description="List of commands")
+@lightbulb.implements(*implements)
+async def help_command(ctx: lightbulb.context.Context):
+    await ctx.respond(
+                """
+        1. Join Command:
+        Description: Join a voice channel.
+        Usage: !join
+
+        2. Play Command:
+        Description: Search for and play music.
+        Usage: !play --query <query>
+
+        3. Stop Command:
+        Description: Stop the current playback.
+        Usage: !stop
+
+        4. Skip Command:
+        Description: Skip the currently playing track.
+        Usage: !skip
+
+        5. Pause Command:
+        Description: Pause the current playback.
+        Usage: !pause
+
+        6. Resume Command:
+        Description: Resume the paused playback.
+        Usage: !resume
+
+        7. Seek Command:
+        Description: Seek to a specific position in the track.
+        Usage: !seek --position <position>
+
+        8. Volume Command:
+        Description: Adjust the playback volume.
+        Usage: !volume --vol <volume>
+
+        9. Queue Command:
+        Description: Display the current track queue.
+        Usage: !queue
+
+        10. Now Playing Command:
+            Description: Display information about the currently playing track.
+            Usage: !np
+
+        11. Repeat Command:
+            Description: Toggle track repetition.
+            Usage: !repeat
+
+        12. Shuffle Command:
+            Description: Shuffle the track queue.
+            Usage: !shuffle
+
+        13. Leave Command:
+            Description: Make the bot leave the voice channel.
+            Usage: !leave
+        """
+    )
+    return
 
 @bot.command()
 @lightbulb.command(name="stop", description="Stop command")
