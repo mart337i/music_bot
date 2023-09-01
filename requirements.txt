@@ -1,0 +1,4 @@
+hikari==2.0.0.dev113
+hikari_lightbulb==2.3.1
+lavaplayer==1.0.10a0
+lightbulb==0.1d
