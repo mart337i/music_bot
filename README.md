@@ -22,7 +22,7 @@ Welcome to the Music Bot project! This bot is designed to play your favorite tun
 
 1. Clone the repository:
    \```bash
-   git clone https://github.com/yourusername/music-bot.git
+   git clone https://github.com/mart337i/music-bot.git
    \```
 
 2. Navigate to the project directory:
