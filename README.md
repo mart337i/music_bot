@@ -35,9 +35,16 @@ Welcome to the Music Bot project! This bot is designed to play your favorite tun
    pip install -r requirements.txt
    \```
 
-4. Configure your bot token in `config.yaml`.
+4. install the lavalink.jar file at https://github.com/Cog-Creators/Lavalink-Jars/releases
 
-5. Run the bot:
+5. start the lavalink server
+   \```bash
+   java -jar lavalink.jar
+   \```
+
+6. Configure your bot token in `config.yaml`.
+
+7. Run the bot:
    \```bash
    python bot.py
    \```
