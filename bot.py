@@ -4,14 +4,27 @@ import lavaplayer
 import logging
 import os
 import asyncio
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
+logging.basicConfig(filename='logs/bot.log',  # log to a file named 'app.log'
+                    filemode='a',  # append to the log file if it exists, otherwise create it
+                    level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+
+_logger = logging.getLogger(__name__)
 
 SLASH_COMMAND = True  # if you want to use slash command, set True
 PREFIX = "="  # prefix for commands
+TOKEN = os.getenv('TOKEN')
 
 
 # create a hikari client to get a events
 bot = lightbulb.BotApp(
-    "OTA1MDUxMzg1NzA2NDY3MzI4.G7Hcm7.lbLXDG9WxdQ2p3l40fKosEb9Nl0VdnOvgG-iqk",
+    token=TOKEN,
     logs={
         "version": 1,
         "incremental": True,
@@ -25,14 +38,15 @@ bot = lightbulb.BotApp(
 
 # create a lavaplayer client
 lavalink = lavaplayer.LavalinkClient(
-    host="127.0.0.1",  # your lavalink host
-    port=8888,  # your lavalink port
-    password="youshallnotpass",  # your lavalink password
-    user_id=123  # your bot id
+    host=os.getenv('HOST'),
+    port=os.getenv('PORT'),
+    password=os.getenv('PASSWORD'),
+    user_id=os.getenv('USER_ID'),
 )
 
 @bot.listen(hikari.StartedEvent)
 async def on_start(event: hikari.StartedEvent):
+    _logger.info("on start")
     lavalink.set_user_id(bot.get_me().id)
     lavalink.set_event_loop(asyncio.get_event_loop())
     lavalink.connect()
@@ -40,10 +54,12 @@ async def on_start(event: hikari.StartedEvent):
 # On voice state update the bot will update the lavalink node
 @bot.listen(hikari.VoiceStateUpdateEvent)
 async def voice_state_update(event: hikari.VoiceStateUpdateEvent):
+    _logger.info("voice_state_update")
     await lavalink.raw_voice_state_update(event.guild_id, event.state.user_id, event.state.session_id, event.state.channel_id)
 
 @bot.listen(hikari.VoiceServerUpdateEvent)
 async def voice_server_update(event: hikari.VoiceServerUpdateEvent):
+    _logger.info("voice_server_update")
     await lavalink.raw_voice_server_update(event.guild_id, event.endpoint, event.token)
 
 implements = [lightbulb.commands.PrefixCommand] if not SLASH_COMMAND else [lightbulb.commands.PrefixCommand, lightbulb.commands.SlashCommand]
@@ -57,11 +73,13 @@ async def join_command(ctx: lightbulb.context.Context):
     voice_state = ctx.bot.cache.get_voice_state(ctx.guild_id, ctx.author.id)
     if not voice_state:
         await ctx.respond("you are not in a voice channel")
+        _logger.info(f"User was not in a voice chat")
         return
     channel_id = voice_state.channel_id
     await bot.update_voice_state(ctx.guild_id, channel_id, self_deaf=True)
     await lavalink.wait_for_connection(ctx.guild_id)
     await ctx.respond(f"join to <#{channel_id}>")
+    _logger.info(f"joined channel")
 
 @bot.command()
 @lightbulb.option(name="query", description="query to search", required=True)
@@ -69,6 +87,7 @@ async def join_command(ctx: lightbulb.context.Context):
 @lightbulb.implements(*implements)
 async def play_command(ctx: lightbulb.context.Context):
     query = ctx.options.query  # get query from options
+    _logger.info(f"resived request {query}")
     result = await lavalink.auto_search_tracks(query)  # search for the query
     if not ctx.bot.cache.get_voice_state(ctx.guild_id, ctx.author.id):
         await ctx.respond("you are not in a voice channel")
@@ -85,15 +104,18 @@ async def play_command(ctx: lightbulb.context.Context):
         await lavalink.wait_for_connection(ctx.guild_id)
     if not result:
         await ctx.respond("not found result for your query")
+        _logger.warning("not found result for your query")
         return
     elif isinstance(result, lavaplayer.TrackLoadFailed):
         await ctx.respond("Track load failed, try again later.\n```{}```".format(result.message))
+        _logger.warning("Track load failed, try again later.")
         return
     elif isinstance(result, lavaplayer.PlayList):
         await lavalink.add_to_queue(ctx.guild_id, result.tracks, ctx.author.id)
         await ctx.respond(f"added {len(result.tracks)} tracks to queue")
+        _logger.warning(f"added tracks to queue")
         return 
-
+    _logger.info("PASSED play_command If statemants should be plaing now")
     await lavalink.play(ctx.guild_id, result[0], ctx.author.id)  # play the first result
     await ctx.respond(f"[{result[0].title}]({result[0].uri})")  # send the embed
 
@@ -105,55 +127,55 @@ async def help_command(ctx: lightbulb.context.Context):
                 """
         1. Join Command:
         Description: Join a voice channel.
-        Usage: !join
+        Usage: /join
 
         2. Play Command:
         Description: Search for and play music.
-        Usage: !play --query <query>
+        Usage: /play --query <query>
 
         3. Stop Command:
         Description: Stop the current playback.
-        Usage: !stop
+        Usage: /stop
 
         4. Skip Command:
         Description: Skip the currently playing track.
-        Usage: !skip
+        Usage: /skip
 
         5. Pause Command:
         Description: Pause the current playback.
-        Usage: !pause
+        Usage: /pause
 
         6. Resume Command:
         Description: Resume the paused playback.
-        Usage: !resume
+        Usage: /resume
 
         7. Seek Command:
         Description: Seek to a specific position in the track.
-        Usage: !seek --position <position>
+        Usage: /seek --position <position>
 
         8. Volume Command:
         Description: Adjust the playback volume.
-        Usage: !volume --vol <volume>
+        Usage: /volume --vol <volume>
 
         9. Queue Command:
         Description: Display the current track queue.
-        Usage: !queue
+        Usage: /queue
 
         10. Now Playing Command:
             Description: Display information about the currently playing track.
-            Usage: !np
+            Usage: /np
 
         11. Repeat Command:
             Description: Toggle track repetition.
-            Usage: !repeat
+            Usage: /repeat
 
         12. Shuffle Command:
             Description: Shuffle the track queue.
-            Usage: !shuffle
+            Usage: /shuffle
 
         13. Leave Command:
             Description: Make the bot leave the voice channel.
-            Usage: !leave
+            Usage: /leave
         """
     )
     return
@@ -202,7 +224,7 @@ async def seek_command(ctx: lightbulb.context.Context):
 async def volume_command(ctx: lightbulb.context.Context):
     volume = ctx.options.vol
     await lavalink.volume(ctx.guild_id, volume)
-    await ctx.respond(f"done set volume to {volume}%")
+    await ctx.respond(f"done set volume")
 
 
 @bot.command()
@@ -243,7 +265,9 @@ async def repeat_command(ctx: lightbulb.context.Context):
 @lightbulb.implements(*implements)
 async def shuffle_command(ctx: lightbulb.context.Context):
     await lavalink.shuffle(ctx.guild_id)
-    await ctx.respond("done shuffle the music")
+    await ctx.respond("shuffled the music")
+    _logger.info("shuffled the music")
+
 
 @bot.command()
 @lightbulb.command(name="leave", description="Leave command")
@@ -251,19 +275,20 @@ async def shuffle_command(ctx: lightbulb.context.Context):
 async def leave_command(ctx: lightbulb.context.Context):
     await bot.update_voice_state(ctx.guild_id, None)
     await ctx.respond("done leave the voice channel")
+    _logger.info("bot left the chat")
 # ------------------------------------- #
 
 @lavalink.listen(lavaplayer.TrackStartEvent)
 async def track_start_event(event: lavaplayer.TrackStartEvent):
-    logging.info(f"start track: {event.track.title}")
+    _logger.info(f"start track: ")
 
 @lavalink.listen(lavaplayer.TrackEndEvent)
 async def track_end_event(event: lavaplayer.TrackEndEvent):
-    logging.info(f"track end: {event.track.title}")
+    _logger.info(f"track end:")
 
 @lavalink.listen(lavaplayer.WebSocketClosedEvent)
 async def web_socket_closed_event(event: lavaplayer.WebSocketClosedEvent):
-    logging.error(f"error with websocket {event.reason}")
+    _logger.error(f"error with websocket ")
 
 
 
