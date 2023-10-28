@@ -21,33 +21,33 @@ Welcome to the Music Bot project! This bot is designed to play your favorite tun
 ### Installation
 
 1. Clone the repository:
-   \```bash
+   ```bash
    git clone https://github.com/mart337i/music-bot.git
-   \```
+   ```
 
 2. Navigate to the project directory:
-   \```bash
+   ```bash
    cd music-bot
-   \```
+   ```
 
 3. Install the required dependencies:
-   \```bash
+   ```bash
    pip install -r requirements.txt
-   \```
+   ```
 
 4. install the lavalink.jar file at https://github.com/Cog-Creators/Lavalink-Jars/releases
 
 5. start the lavalink server
-   \```bash
+   ```bash
    java -jar lavalink.jar
-   \```
+   ```
 
 6. Configure your bot token in `config.yaml`.
 
 7. Run the bot:
-   \```bash
+   ```bash
    python bot.py
-   \```
+   ```
 
 ## 🎛️ Commands
 
