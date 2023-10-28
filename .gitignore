@@ -29,6 +29,7 @@ MANIFEST
 # Custom
 __manifest__.py
 Lavalink.jar
+application.yml
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
